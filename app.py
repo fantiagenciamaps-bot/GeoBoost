@@ -3,38 +3,73 @@ import pandas as pd
 import pydeck as pdk
 
 # Configuración de la página
-st.set_page_config(page_title="GeoBoost - Centro de Comando", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="GeoBoost - Google Business Console", page_icon="🌐", layout="wide")
 
-# Estilos CSS Material Design limpios
+# Inyección de Estilos CSS - Estricto Google Material Design (Light Workspace)
 st.markdown("""
     <style>
+    /* Fondo general blanco puro estilo Google Workspace */
     .stApp {
-        background-color: #f8f9fa;
+        background-color: #ffffff;
         color: #202124;
+        font-family: 'Roboto', sans-serif;
     }
+    
+    /* Barra lateral limpia y minimalista */
+    [data-testid="stSidebar"] {
+        background-color: #f8f9fa;
+        border-right: 1px solid #dadce0;
+    }
+    
+    /* Tarjetas de métricas y contenedores estilo Google */
+    div.stMarkdown container, div.row-widget {
+        background-color: #ffffff;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        padding: 15px;
+    }
+
+    /* Botones principales estilo Google Blue */
     .stButton>button {
         background-color: #1a73e8;
         color: white;
         border-radius: 4px;
         border: none;
         font-weight: 500;
+        padding: 6px 16px;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
     }
     .stButton>button:hover {
         background-color: #1557b0;
         color: white;
     }
+    
+    /* Inputs y selects limpios */
+    input, select, textarea {
+        border-radius: 4px !important;
+        border: 1px solid #dadce0 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("⚡ GeoBoost | Centro de Comando & Operación Autónoma")
-st.markdown("Sistema autónomo de prospección local, auditoría de Google Maps e intervención en vivo.")
+# Encabezado corporativo estilo Google Cloud / Business Profile
+col_logo, col_title, col_user = st.columns([0.5, 4, 1])
+with col_logo:
+    st.markdown("### 🌐")
+with col_title:
+    st.markdown("### GeoBoost Console")
+    st.caption("Panel de administración y automatización para comercios locales")
+with col_user:
+    st.markdown("👤 **Admin San Justo**")
+
+st.markdown("<hr style='border: 1px solid #dadce0; margin-top: 0px;'>", unsafe_allow_html=True)
 
 # Barra lateral de navegación
-st.sidebar.header("Panel de Control")
-zona = st.sidebar.selectbox("Zona Activa", ["San Justo Centro", "San Justo Oeste", "Ramos Mejía", "Morón"])
-seccion = st.sidebar.radio("Módulos", ["🗺️ Mapa Geoespacial (Estilo Maps)", "📊 Embudo Comercial (Kanban)", "💬 Chat en Vivo / Intervención", "🔍 Auditoría Express", "⚙️ Estado del Sistema"])
+st.sidebar.header("Navegación")
+zona = st.sidebar.selectbox("Ubicación Activa", ["San Justo Centro", "San Justo Oeste", "Ramos Mejía", "Morón"])
+seccion = st.sidebar.radio("Módulos", ["🗺️ Radar Google Maps", "📊 Pipeline Comercial", "💬 Mensajería y Bots", "🔍 Auditor de Fichas", "⚙️ Estado del Sistema"])
 
-# Base de datos simulada de comercios geolocalizados en San Justo
+# Base de datos simulada de comercios en San Justo
 df_comercios = pd.DataFrame({
     'comercio': ['Ferretería San Justo', 'Kiosco El Paso', 'Pizzería La Strada', 'Indumentaria M&M'],
     'rubro': ['Ferretería', 'Kiosco', 'Gastronomía', 'Moda'],
@@ -44,8 +79,8 @@ df_comercios = pd.DataFrame({
     'color': [[234, 67, 53, 220], [234, 67, 53, 220], [251, 188, 5, 220], [52, 168, 83, 220]]
 })
 
-if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
-    st.subheader(f"🗺️ Radar Geoespacial y Fichas Activas - {zona}")
+if seccion == "🗺️ Radar Google Maps":
+    st.subheader(f"📍 Mapeo de Fichas - {zona}")
     
     col_mapa, col_info = st.columns([2, 1])
     
@@ -67,82 +102,61 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             pitch=0,
         )
         
-        # Usamos mapa base nativo sin requerir tokens de Mapbox externos
         r = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
             tooltip={"text": "Comercio: {comercio}\nRubro: {rubro}\nEstado: {estado}"},
         )
         st.pydeck_chart(r, use_container_width=True)
-        st.caption("💡 Mapa interactivo operativo para San Justo.")
+        st.caption("🔍 Visualización interactiva basada en los colores corporativos de Google.")
 
     with col_info:
-        st.markdown("### 📋 Listado de Locales")
+        st.markdown("### 📋 Directorio Local")
         for index, row in df_comercios.iterrows():
             with st.expander(f"{row['comercio']} ({row['rubro']})"):
-                st.markdown(f"**Estado Maps:** {row['estado']}")
+                st.markdown(f"**Diagnóstico:** {row['estado']}")
                 if st.button(f"Enviar Auditoría", key=f"btn_{index}"):
-                    st.success(f"¡Diagnóstico enviado por WhatsApp a {row['comercio']}!")
+                    st.success(f"¡Reporte enviado a {row['comercio']}!")
 
-elif seccion == "📊 Embudo Comercial (Kanban)":
-    st.subheader(f"📈 Pipeline de Conversión - {zona}")
+elif seccion == "📊 Pipeline Comercial":
+    st.subheader(f"📈 Embudo de Ventas - {zona}")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.markdown("### 📥 Detectados")
-        st.info("Ferretería San Justo\n*Rubro: Ferretería*\n*Estado: Sin respuesta a reseñas*")
-        st.info("Kiosco El Paso\n*Rubro: Kiosco*\n*Estado: Fotos antiguas*")
+        st.markdown("#### 📥 Detectados")
+        st.info("Ferretería San Justo\n*Ferretería*")
     with col2:
-        st.markdown("### 📤 Auditoría Enviada")
-        st.success("Pizzería La Strada\n*Rubro: Gastronomía*\n*Estado: Mensaje entregado*")
+        st.markdown("#### 📤 Auditados")
+        st.success("Pizzería La Strada\n*Gastronomía*")
     with col3:
-        st.markdown("### 🔥 Leads Calientes")
-        st.warning("**Indumentaria M&M**\n*Rubro: Moda*\n*Preguntó precio del Plan Start ($17.500)*")
+        st.markdown("#### 🔥 Leads Calientes")
+        st.warning("**Indumentaria M&M**\n*Interesado ($17.500)*")
     with col4:
-        st.markdown("### 💰 Cerrados")
-        st.markdown("✅ *Ninguno en este lote todavía*")
+        st.markdown("#### 💰 Cerrados")
+        st.markdown("✅ *Ninguno activo*")
 
-elif seccion == "💬 Chat en Vivo / Intervención":
-    st.subheader("💬 Bandeja de Entrada en Tiempo Real (WhatsApp / Bot)")
+elif seccion == "💬 Mensajería y Bots":
+    st.subheader("💬 Centro de Mensajería (WhatsApp Business)")
+    lead_sel = st.selectbox("Conversación activa:", ["Indumentaria M&M (+54 9 11 1122-3344)"])
+    st.text_area("Historial:", value="[Bot]: Hola! Auditamos el perfil de Google Maps...\n[Cliente]: Hola, cuánto sale?", height=140, disabled=True)
     
-    lead_seleccionado = st.selectbox("Seleccioná un comercio para ver la conversación:", 
-                                   ["Indumentaria M&M (+54 9 11 1122-3344)", "Pizzería La Strada (+54 9 11 5555-4444)"])
-    
-    st.markdown("---")
-    st.markdown(f"**Historial de chat con: {lead_seleccionado}**")
-    
-    st.text_area("Historial de mensajes:", value="[Bot 21:00]: Hola! Estuvimos auditando el perfil de Google Maps y detectamos oportunidades.\n[Cliente 21:05]: Hola, cuánto cuesta?", height=150, disabled=True)
-    
-    modo_control = st.radio("Modo de operación para este chat:", ["🤖 Bot Automático Activo", "👤 Intervención Humana (Tomar el control)"])
-    
-    if "Humana" in modo_control:
-        st.error("⚠️ Bot pausado para este comercio. Estás operando de forma manual.")
-        respuesta_manual = st.text_input("Escribir respuesta por WhatsApp:")
-        if st.button("Enviar Respuesta Manual"):
-            st.success("¡Mensaje enviado al cliente por WhatsApp con éxito!")
-    else:
-        st.info("🤖 El bot de inteligencia artificial está respondiendo automáticamente.")
+    modo = st.radio("Control de sesión:", ["🤖 IA Automática", "👤 Humano (Intervenir)"])
+    if "Humano" in modo:
+        st.warning("Control manual activo para esta línea.")
+        st.text_input("Respuesta rápida:")
+        st.button("Enviar Mensaje")
 
-elif seccion == "🔍 Auditoría Express":
-    st.subheader("🔍 Generador de Diagnóstico de Google Maps")
-    url_maps = st.text_input("Pegá el link del perfil de Google Maps:")
-    
-    if st.button("Analizar Perfil"):
-        if url_maps:
-            st.success("¡Auditoría generada con éxito!")
-            st.markdown("- **Reseñas Negativas:** 2 sin responder.")
-            st.markdown("- **Multimedia:** Falta actualizar fotos del local.")
-            st.info("💡 Link al Formulario de Admisión (Tally) listo para disparar por WhatsApp.")
-        else:
-            st.warning("Ingresá una URL válida.")
+elif seccion == "🔍 Auditorer de Fichas":
+    st.subheader("🔍 Analizador de Perfiles Google Maps")
+    url = st.text_input("URL del perfil de negocio:")
+    if st.button("Ejecutar Diagnóstico"):
+        st.success("Auditoría completada con éxito. Formulario Tally adjunto.")
 
 else:
-    st.subheader("⚙️ Estado de la Infraestructura y Conexiones")
-    st.success("🟢 Líneas de WhatsApp (SIMs Claro/Personal): Conectadas")
-    st.success("🟢 Scraper de Leads (Apify / Outscraper): Operativo")
-    st.success("🟢 Webhooks y Google Sheets: Sincronizados")
+    st.subheader("⚙️ Estado de la Infraestructura")
+    st.success("🟢 Red de Líneas WhatsApp: Conectada")
+    st.success("🟢 Scraper Geográfico: Sincronizado")
     
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Leads Escaneados Hoy", "42")
-    c2.metric("Auditorías en Curso", "15")
-    c3.metric("Tasa de Respuesta", "31%")
+    c1, c2 = st.columns(2)
+    c1.metric("Fichas Escaneadas", "42")
+    c2.metric("Conversiones", "5")
