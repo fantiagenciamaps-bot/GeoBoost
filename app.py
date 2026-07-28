@@ -20,7 +20,7 @@ df_comercios = pd.DataFrame({
     'estado': ['Sin respuesta a reseñas', 'Fotos viejas', 'Perfil incompleto', 'Optimizado'],
     'lat': [-34.6830, -34.6870, -34.6810, -34.6855],
     'lon': [-58.5580, -58.5620, -58.5550, -58.5600],
-    'color': [[255, 75, 75, 200], [255, 75, 75, 200], [255, 165, 0, 200], [40, 200, 64, 200]] # Rojo, Rojo, Naranja, Verde
+    'color': [[255, 75, 75, 200], [255, 75, 75, 200], [255, 165, 0, 200], [40, 200, 64, 200]]
 })
 
 if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
@@ -29,7 +29,6 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
     col_mapa, col_info = st.columns([2, 1])
     
     with col_mapa:
-        # Capa de puntos en el mapa 3D
         layer = pdk.Layer(
             "ScatterplotLayer",
             data=df_comercios,
@@ -40,12 +39,11 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             auto_highlight=True,
         )
         
-        # Vista inicial centrada en San Justo
         view_state = pdk.ViewState(
             latitude=-34.6845,
             longitude=-58.5585,
             zoom=14,
-            pitch=45, # Inclinación 3D estilo Google Maps
+            pitch=45,
         )
         
         r = pdk.Deck(
@@ -54,12 +52,12 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             tooltip={"text": "Comercio: {comercio}\nRubro: {rubro}\nEstado: {estado}"},
         )
         st.pydeck_chart(r, use_container_width=True)
-        st.caption("💡 Pasa el cursor o haz clic sobre los pines rojos y verdes para ver el diagnóstico del local.")
+        st.caption("💡 Pasa el cursor o haz clic sobre los pines para ver el diagnóstico del local.")
 
     with col_info:
         st.markdown("### 📋 Listado de Locales")
         for index, row in df_comercios.iterrows():
-            with st.expander(f"{row['comercio']} ({row['rubro'])"):
+            with st.expander(f"{row['comercio']} ({row['rubro']})"):
                 st.markdown(f"**Estado Maps:** {row['estado']}")
                 if st.button(f"Enviar Auditoría", key=f"btn_{index}"):
                     st.success(f"¡Diagnóstico enviado por WhatsApp a {row['comercio']}!")
