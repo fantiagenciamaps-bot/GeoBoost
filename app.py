@@ -5,22 +5,43 @@ import pydeck as pdk
 # Configuración de la página
 st.set_page_config(page_title="GeoBoost - Centro de Comando", page_icon="⚡", layout="wide")
 
+# Inyección de Estilos CSS estilo Google Material Design (Tema Claro y Luminoso)
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #f8f9fa;
+        color: #202124;
+    }
+    .stButton>button {
+        background-color: #1a73e8;
+        color: white;
+        border-radius: 4px;
+        border: none;
+        font-weight: 500;
+    }
+    .stButton>button:hover {
+        background-color: #1557b0;
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("⚡ GeoBoost | Centro de Comando & Operación Autónoma")
-st.markdown("Sistema híbrido de prospección local, auditoría de Google Maps e intervención en vivo.")
+st.markdown("Sistema autónomo de prospección local, auditoría de Google Maps e intervención en vivo.")
 
 # Barra lateral de navegación
 st.sidebar.header("Panel de Control")
 zona = st.sidebar.selectbox("Zona Activa", ["San Justo Centro", "San Justo Oeste", "Ramos Mejía", "Morón"])
 seccion = st.sidebar.radio("Módulos", ["🗺️ Mapa Geoespacial (Estilo Maps)", "📊 Embudo Comercial (Kanban)", "💬 Chat en Vivo / Intervención", "🔍 Auditoría Express", "⚙️ Estado del Sistema"])
 
-# Base de datos simulada de comercios geolocalizados en San Justo
+# Base de datos simulada de comercios geolocalizados con paleta de colores Material Google
 df_comercios = pd.DataFrame({
     'comercio': ['Ferretería San Justo', 'Kiosco El Paso', 'Pizzería La Strada', 'Indumentaria M&M'],
     'rubro': ['Ferretería', 'Kiosco', 'Gastronomía', 'Moda'],
     'estado': ['Sin respuesta a reseñas', 'Fotos viejas', 'Perfil incompleto', 'Optimizado'],
     'lat': [-34.6830, -34.6870, -34.6810, -34.6855],
     'lon': [-58.5580, -58.5620, -58.5550, -58.5600],
-    'color': [[255, 75, 75, 200], [255, 75, 75, 200], [255, 165, 0, 200], [40, 200, 64, 200]]
+    'color': [[234, 67, 53, 220], [234, 67, 53, 220], [251, 188, 5, 220], [52, 168, 83, 220]] # Rojo Google, Rojo Google, Amarillo Google, Verde Google
 })
 
 if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
@@ -34,7 +55,7 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             data=df_comercios,
             get_position=["lon", "lat"],
             get_color="color",
-            get_radius=140,
+            get_radius=150,
             pickable=True,
             auto_highlight=True,
         )
@@ -43,16 +64,18 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             latitude=-34.6845,
             longitude=-58.5585,
             zoom=14,
-            pitch=45,
+            pitch=30,
         )
         
+        # Mapa con estilo claro estilo Google Maps clásico
         r = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
+            map_style="mapbox://styles/mapbox/light-v10",
             tooltip={"text": "Comercio: {comercio}\nRubro: {rubro}\nEstado: {estado}"},
         )
         st.pydeck_chart(r, use_container_width=True)
-        st.caption("💡 Pasa el cursor o haz clic sobre los pines para ver el diagnóstico del local.")
+        st.caption("💡 Mapa interactivo con diseño lumínico y códigos de color corporativos de Google.")
 
     with col_info:
         st.markdown("### 📋 Listado de Locales")
