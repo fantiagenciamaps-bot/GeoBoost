@@ -5,7 +5,7 @@ import pydeck as pdk
 # Configuración de la página
 st.set_page_config(page_title="GeoBoost - Centro de Comando", page_icon="⚡", layout="wide")
 
-# Inyección de Estilos CSS estilo Google Material Design (Tema Claro y Luminoso)
+# Estilos CSS Material Design limpios
 st.markdown("""
     <style>
     .stApp {
@@ -34,14 +34,14 @@ st.sidebar.header("Panel de Control")
 zona = st.sidebar.selectbox("Zona Activa", ["San Justo Centro", "San Justo Oeste", "Ramos Mejía", "Morón"])
 seccion = st.sidebar.radio("Módulos", ["🗺️ Mapa Geoespacial (Estilo Maps)", "📊 Embudo Comercial (Kanban)", "💬 Chat en Vivo / Intervención", "🔍 Auditoría Express", "⚙️ Estado del Sistema"])
 
-# Base de datos simulada de comercios geolocalizados con paleta de colores Material Google
+# Base de datos simulada de comercios geolocalizados en San Justo
 df_comercios = pd.DataFrame({
     'comercio': ['Ferretería San Justo', 'Kiosco El Paso', 'Pizzería La Strada', 'Indumentaria M&M'],
     'rubro': ['Ferretería', 'Kiosco', 'Gastronomía', 'Moda'],
     'estado': ['Sin respuesta a reseñas', 'Fotos viejas', 'Perfil incompleto', 'Optimizado'],
     'lat': [-34.6830, -34.6870, -34.6810, -34.6855],
     'lon': [-58.5580, -58.5620, -58.5550, -58.5600],
-    'color': [[234, 67, 53, 220], [234, 67, 53, 220], [251, 188, 5, 220], [52, 168, 83, 220]] # Rojo Google, Rojo Google, Amarillo Google, Verde Google
+    'color': [[234, 67, 53, 220], [234, 67, 53, 220], [251, 188, 5, 220], [52, 168, 83, 220]]
 })
 
 if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
@@ -55,7 +55,7 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             data=df_comercios,
             get_position=["lon", "lat"],
             get_color="color",
-            get_radius=150,
+            get_radius=180,
             pickable=True,
             auto_highlight=True,
         )
@@ -64,18 +64,17 @@ if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
             latitude=-34.6845,
             longitude=-58.5585,
             zoom=14,
-            pitch=30,
+            pitch=0,
         )
         
-        # Mapa con estilo claro estilo Google Maps clásico
+        # Usamos mapa base nativo sin requerir tokens de Mapbox externos
         r = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            map_style="mapbox://styles/mapbox/light-v10",
             tooltip={"text": "Comercio: {comercio}\nRubro: {rubro}\nEstado: {estado}"},
         )
         st.pydeck_chart(r, use_container_width=True)
-        st.caption("💡 Mapa interactivo con diseño lumínico y códigos de color corporativos de Google.")
+        st.caption("💡 Mapa interactivo operativo para San Justo.")
 
     with col_info:
         st.markdown("### 📋 Listado de Locales")
