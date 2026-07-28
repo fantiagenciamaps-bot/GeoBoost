@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
 
 # Configuración de la página
 st.set_page_config(page_title="GeoBoost - Centro de Comando", page_icon="⚡", layout="wide")
@@ -10,9 +11,60 @@ st.markdown("Sistema híbrido de prospección local, auditoría de Google Maps e
 # Barra lateral de navegación
 st.sidebar.header("Panel de Control")
 zona = st.sidebar.selectbox("Zona Activa", ["San Justo Centro", "San Justo Oeste", "Ramos Mejía", "Morón"])
-seccion = st.sidebar.radio("Módulos", ["📊 Embudo Comercial (Kanban)", "💬 Chat en Vivo / Intervención", "🔍 Auditoría Express", "⚙️ Estado del Sistema"])
+seccion = st.sidebar.radio("Módulos", ["🗺️ Mapa Geoespacial (Estilo Maps)", "📊 Embudo Comercial (Kanban)", "💬 Chat en Vivo / Intervención", "🔍 Auditoría Express", "⚙️ Estado del Sistema"])
 
-if seccion == "📊 Embudo Comercial (Kanban)":
+# Base de datos simulada de comercios geolocalizados en San Justo
+df_comercios = pd.DataFrame({
+    'comercio': ['Ferretería San Justo', 'Kiosco El Paso', 'Pizzería La Strada', 'Indumentaria M&M'],
+    'rubro': ['Ferretería', 'Kiosco', 'Gastronomía', 'Moda'],
+    'estado': ['Sin respuesta a reseñas', 'Fotos viejas', 'Perfil incompleto', 'Optimizado'],
+    'lat': [-34.6830, -34.6870, -34.6810, -34.6855],
+    'lon': [-58.5580, -58.5620, -58.5550, -58.5600],
+    'color': [[255, 75, 75, 200], [255, 75, 75, 200], [255, 165, 0, 200], [40, 200, 64, 200]] # Rojo, Rojo, Naranja, Verde
+})
+
+if seccion == "🗺️ Mapa Geoespacial (Estilo Maps)":
+    st.subheader(f"🗺️ Radar Geoespacial y Fichas Activas - {zona}")
+    
+    col_mapa, col_info = st.columns([2, 1])
+    
+    with col_mapa:
+        # Capa de puntos en el mapa 3D
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=df_comercios,
+            get_position=["lon", "lat"],
+            get_color="color",
+            get_radius=140,
+            pickable=True,
+            auto_highlight=True,
+        )
+        
+        # Vista inicial centrada en San Justo
+        view_state = pdk.ViewState(
+            latitude=-34.6845,
+            longitude=-58.5585,
+            zoom=14,
+            pitch=45, # Inclinación 3D estilo Google Maps
+        )
+        
+        r = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip={"text": "Comercio: {comercio}\nRubro: {rubro}\nEstado: {estado}"},
+        )
+        st.pydeck_chart(r, use_container_width=True)
+        st.caption("💡 Pasa el cursor o haz clic sobre los pines rojos y verdes para ver el diagnóstico del local.")
+
+    with col_info:
+        st.markdown("### 📋 Listado de Locales")
+        for index, row in df_comercios.iterrows():
+            with st.expander(f"{row['comercio']} ({row['rubro'])"):
+                st.markdown(f"**Estado Maps:** {row['estado']}")
+                if st.button(f"Enviar Auditoría", key=f"btn_{index}"):
+                    st.success(f"¡Diagnóstico enviado por WhatsApp a {row['comercio']}!")
+
+elif seccion == "📊 Embudo Comercial (Kanban)":
     st.subheader(f"📈 Pipeline de Conversión - {zona}")
     
     col1, col2, col3, col4 = st.columns(4)
@@ -36,11 +88,10 @@ elif seccion == "💬 Chat en Vivo / Intervención":
     lead_seleccionado = st.selectbox("Seleccioná un comercio para ver la conversación:", 
                                    ["Indumentaria M&M (+54 9 11 1122-3344)", "Pizzería La Strada (+54 9 11 5555-4444)"])
     
-    st.markdown(f"---")
+    st.markdown("---")
     st.markdown(f"**Historial de chat con: {lead_seleccionado}**")
     
-    # Simulación de chat activo
-    st.text_area("Historial de mensajes:", value="[Bot 21:00]: Hola! Estuvimos auditando el perfil de Google Maps de Indumentaria M&M y detectamos oportunidades para subir en el ranking local.\n[Cliente 21:05]: Hola, cómo es eso? Cuánto cuesta?", height=150, disabled=True)
+    st.text_area("Historial de mensajes:", value="[Bot 21:00]: Hola! Estuvimos auditando el perfil de Google Maps y detectamos oportunidades.\n[Cliente 21:05]: Hola, cuánto cuesta?", height=150, disabled=True)
     
     modo_control = st.radio("Modo de operación para este chat:", ["🤖 Bot Automático Activo", "👤 Intervención Humana (Tomar el control)"])
     
@@ -50,7 +101,7 @@ elif seccion == "💬 Chat en Vivo / Intervención":
         if st.button("Enviar Respuesta Manual"):
             st.success("¡Mensaje enviado al cliente por WhatsApp con éxito!")
     else:
-        st.info("🤖 El bot de inteligencia artificial está respondiendo automáticamente según el embudo.")
+        st.info("🤖 El bot de inteligencia artificial está respondiendo automáticamente.")
 
 elif seccion == "🔍 Auditoría Express":
     st.subheader("🔍 Generador de Diagnóstico de Google Maps")
